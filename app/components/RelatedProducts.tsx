@@ -3,14 +3,15 @@ import { useSelector, useDispatch } from "react-redux";
 import { fetchProducts } from '../store/slices/productSlice';
 import { useSearchParams } from 'next/navigation';
 import { AppDispatch, RootState } from '../store/store';
+import { useRouter } from 'next/navigation';
 
 const formatPrice = (price: number) => {
     if (price >= 100_000) {
-        return `₹${(price / 100_000).toFixed(1)}L`; // For lakhs
+        return `₹${(price / 100_000).toFixed(1)}L`;
     } else if (price >= 10_000) {
-        return `₹${(price / 1_000).toFixed(1)}K`; // For thousands
+        return `₹${(price / 1_000).toFixed(1)}K`;
     } else {
-        return `₹${price.toLocaleString()}`; // For smaller prices
+        return `₹${price.toLocaleString()}`;
     }
 };
 
@@ -20,6 +21,7 @@ export default function RelatedProducts() {
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
     const [product, setProduct] = useState<any>(null);
+    const router = useRouter();
 
     useEffect(() => {
         console.log("ID from URL:", id);
@@ -37,6 +39,8 @@ export default function RelatedProducts() {
         }
     }, [id, products, dispatch]);
 
+
+
     if (!product) {
         console.log("Product is still loading...");
         return <p>Loading...</p>;
@@ -46,8 +50,14 @@ export default function RelatedProducts() {
         .filter((p: any) => p.id !== Number(id))
         .slice(0, 4);
 
+
+
+    const handleClick = () => {
+        router.push(`/products/details?id=${id}`); // Pass `id` as a query parameter
+    };
+
     return (
-        <div className="bg-white">
+        <div className="bg-white" onClick={handleClick} >
             <div className="mx-auto max-w-2xl px-4  pb-8 sm:pb-10  sm:px-6  lg:max-w-7xl lg:px-8">
                 <h2 className="text-2xl font-bold tracking-tight text-gray-900">Customers also purchased</h2>
 
@@ -62,7 +72,7 @@ export default function RelatedProducts() {
                             <div className="mt-4 flex justify-between">
                                 <div>
                                     <h3 className="text-sm text-gray-700">
-                                        <a href={`/product-details?id=${product.id}`}>
+                                        <a href={`/products/details?id=${id}`}>
                                             <span aria-hidden="true" className="absolute inset-0" />
                                             {product.name}
                                         </a>

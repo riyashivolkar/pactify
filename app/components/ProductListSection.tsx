@@ -8,6 +8,8 @@ import Offers from "./Offers";
 import PriceDropdown from "./PriceDropown";
 import RatingsDropdown from "./RatingsDropdown";
 import CategoryFilter from "./CategoryFilter";
+import SearchBar from "./SearchBar";
+import SearchResults from "./SearchResults";
 
 export function ProductListSection() {
     const dispatch = useDispatch<AppDispatch>();
@@ -88,22 +90,22 @@ export function ProductListSection() {
 
             <Offers />
 
-            {/* Filters & Sorting */}
-            <div className="flex flex-row items-center justify-center space-x-4">
-                {/* Ratings Dropdown */}
-                <div className="mb-4 flex justify-center items-center">
-                    <PriceDropdown onPriceChange={handlePriceChange} />
-
+            <div className="flex flex-col pb-0 sm:pb-5 md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-4 w-full">
+                {/* Search Bar - Takes full width on small screens */}
+                <div className="w-full md:w-auto flex justify-center items-center">
+                    <SearchBar />
                 </div>
 
-                {/* Price Filter Dropdown */}
-                <div className="mb-4 flex justify-center items-center">
-                    <RatingsDropdown onRatingsChange={handleRatingsChange} />
+                {/* Price and Rating should be in a row only on small screens */}
+                <div className="flex flex-row pb-5 sm:pb-0 sm:flex-row  space-x-4 sm:space-x-5 ">
+                    <div className="w-full md:w-auto flex justify-center items-center">
+                        <PriceDropdown onPriceChange={handlePriceChange} />
+                    </div>
 
+                    <div className="w-full md:w-auto flex justify-center items-center">
+                        <RatingsDropdown onRatingsChange={handleRatingsChange} />
+                    </div>
                 </div>
-                {/* <div className="mb-4 flex justify-center items-center">
-                    <CategoryFilter />
-                </div> */}
             </div>
 
             {/* Product Display */}
@@ -149,6 +151,7 @@ export function ProductListSection() {
                     Next
                 </button>
             </div>
+
         </section>
     );
 }

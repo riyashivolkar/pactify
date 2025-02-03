@@ -103,31 +103,40 @@ const ProductDetails = () => {
     const [product, setProduct] = useState<any>(null);
 
     const handleAddToCart = (event: React.FormEvent) => {
-        event.preventDefault(); // Prevents the form from submitting and causing a page reload
-        setIsCartOpen(true); // Open the cart when the button is clicked
+        event.preventDefault();
+        setIsCartOpen(true);
     };
-
 
     useEffect(() => {
         console.log("ID from URL:", id);
         console.log("Products in store:", products);
 
+        if (!id) return; // Exit early if no ID is available
+
+        // Fetch products only if they are not in store
         if (products.length === 0) {
             console.log("Fetching products...");
             dispatch(fetchProducts({ page: 1, category: null }));
-        }
-
-        if (id) {
+        } else {
+            // Find product in store
             const foundProduct = products.find((p) => p.id === Number(id));
-            console.log("Found Product:", foundProduct);
-            setProduct(foundProduct);
+            if (foundProduct) {
+                console.log("Found Product:", foundProduct);
+                setProduct(foundProduct);
+            } else {
+                console.log("Product not found in store!");
+                setProduct(null); // Optional: Handle missing product case
+            }
         }
-    }, [id, products, dispatch]);
+    }, [id, products]); // Removed dispatch from dependency array
 
     if (!product) {
         console.log("Product is still loading...");
         return <p>Loading...</p>;
     }
+
+
+
 
     console.log("Rendering product details:", product);
 
@@ -344,7 +353,7 @@ const ProductDetails = () => {
                 </div>
             </div>
             <RelatedProducts />
-            {isCartOpen && <ShoppingCart />}
+            {isCartOpen && <ShoppingCart isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />}
         </div>
     );
 };

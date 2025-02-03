@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 interface Product {
   id: number;
@@ -114,6 +114,18 @@ const productSlice = createSlice({
     setSelectedCategory: (state, action) => {
       state.selectedCategory = action.payload;
     },
+    updateProductQuantity: (state, action) => {
+      const { id, quantity } = action.payload;
+      const product = state.products.find((p) => p.id === id);
+      if (product) {
+        product.quantity = quantity;
+      }
+    },
+    removeProduct: (state, action: PayloadAction<number>) => {
+      state.products = state.products.filter(
+        (product) => product.id !== action.payload
+      );
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -133,5 +145,10 @@ const productSlice = createSlice({
   },
 });
 
-export const { setPage, setSelectedCategory } = productSlice.actions;
+export const {
+  setPage,
+  setSelectedCategory,
+  updateProductQuantity,
+  removeProduct,
+} = productSlice.actions;
 export default productSlice.reducer;

@@ -4,67 +4,41 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store/store';
 import { useSearchParams } from 'next/navigation';
-import { fetchProducts } from '../store/slices/productSlice';
+import { fetchProducts, removeProduct, updateProductQuantity } from '../store/slices/productSlice';
 
-type product9 = {
-    id: number;
-    name: string;
-    href: string;
-    color: string;
-    price: string;
-    quantity: number;
-    imageSrc: string;
-    imageAlt: string;
-};
-
-const products9: product9[] = [
-    {
-        id: 1,
-        name: 'Throwback Hip Bag',
-        href: '#',
-        color: 'Salmon',
-        price: '$90.00',
-        quantity: 1,
-        imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/shopping-cart-page-04-product-01.jpg',
-        imageAlt: 'Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt.',
-    },
-    {
-        id: 2,
-        name: 'Medium Stuff Satchel',
-        href: '#',
-        color: 'Blue',
-        price: '$32.00',
-        quantity: 1,
-        imageSrc: 'https://tailwindui.com/plus/img/ecommerce-images/shopping-cart-page-04-product-02.jpg',
-        imageAlt:
-            'Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch.',
-    },
-    // More products...
-];
 
 
 
 
 const formatPrice = (price: number) => {
     if (price >= 100_000) {
-        return `₹${(price / 100_000).toFixed(1)}L`; // For lakhs
+        return `₹${(price / 100_000).toFixed(1)}L`;
     } else if (price >= 10_000) {
-        return `₹${(price / 1_000).toFixed(1)}K`; // For thousands
+        return `₹${(price / 1_000).toFixed(1)}K`;
     } else {
-        return `₹${price.toLocaleString()}`; // For smaller prices
+        return `₹${price.toLocaleString()}`;
     }
 };
 
 
+interface ShoppingCartProps {
+    isOpen: boolean;
+    onClose: () => void;
+}
 
 
-export default function ShoppingCart() {
+export default function ShoppingCart({ isOpen, onClose }: ShoppingCartProps) {
     const [open, setOpen] = useState(true);
     const dispatch = useDispatch<AppDispatch>();
     const { products } = useSelector((state: RootState) => state.products);
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
     const [product, setProduct] = useState<any>(null);
+
+    const handleRemoveProduct = (id: number) => {
+        dispatch(removeProduct(id));
+    };
+
 
     useEffect(() => {
         console.log("ID from URL:", id);
@@ -104,9 +78,12 @@ export default function ShoppingCart() {
         .filter((p: any) => p.id !== Number(id))
         .slice(0, 2);
 
-
+    const handleQuantityChange = (id: number, quantity: number) => {
+        dispatch(updateProductQuantity({ id, quantity }));
+    };
     return (
-        <Dialog open={open} onClose={setOpen} className="relative z-10">
+
+        <Dialog open={isOpen} onClose={onClose} className="relative z-10">
             <DialogBackdrop
                 transition
                 className="fixed inset-0 bg-gray-500/75 transition-opacity duration-500 ease-in-out data-closed:opacity-0"
@@ -126,8 +103,7 @@ export default function ShoppingCart() {
                                         <div className="ml-3 flex h-7 items-center">
                                             <button
                                                 type="button"
-                                                onClick={() => setOpen(false)}
-                                                className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
+                                                onClick={onClose} className="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
                                             >
                                                 <span className="absolute -inset-0.5" />
                                                 <span className="sr-only">Close panel</span>
@@ -156,10 +132,18 @@ export default function ShoppingCart() {
                                                                 <p className="mt-1 text-sm text-gray-500">{ }</p>
                                                             </div>
                                                             <div className="flex flex-1 items-end justify-between text-sm">
-                                                                <p className="text-gray-500">Qty {product.quantity}</p>
-
+                                                                <select
+                                                                    value={product.quantity}
+                                                                    onChange={(e) => handleQuantityChange(product.id, Number(e.target.value))}
+                                                                    className="border rounded-md p-1 text-gray-600"
+                                                                >
+                                                                    {[...Array(9).keys()].map((num) => (
+                                                                        <option key={num + 1} value={num + 1}>{num + 1}</option>
+                                                                    ))}
+                                                                </select>
                                                                 <div className="flex">
-                                                                    <button type="button" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                                                    <button type="button" onClick={() => handleRemoveProduct(product.id)}
+                                                                        className="font-medium text-indigo-600 hover:text-indigo-500">
                                                                         Remove
                                                                     </button>
                                                                 </div>
